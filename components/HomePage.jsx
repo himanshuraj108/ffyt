@@ -20,7 +20,7 @@ const HomePage = () => {
     try {
       await axios.post("/api/users", formdata);
       toast.success("Added successfully");
-      router.push("http://localhost:3000/status");
+      router.push("https://ritikyadavlive.vercel.app/status");
     } catch (error) {
       toast.error("Invalid UID");
     } finally {
