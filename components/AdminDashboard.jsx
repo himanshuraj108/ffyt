@@ -24,20 +24,21 @@ const AdminDashboard = () => {
 
   const updateStatus = async (uid, newStatus) => {
     try {
-      console.log('Updating status:', { uid, status: newStatus });
-      const response = await axios.put("/api/adminupdate", 
+      console.log("Updating status:", { uid, status: newStatus });
+      const response = await axios.put(
+        "/api/adminupdate",
         { uid, status: newStatus },
         {
           headers: {
-            'Content-Type': 'application/json',
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
-      console.log('Update response:', response.data);
+      console.log("Update response:", response.data);
       toast.success("Status updated successfully");
       fetchUsers(); // Refresh the list
     } catch (error) {
-      console.error('Update error:', error.response?.data || error);
+      console.error("Update error:", error.response?.data || error);
       toast.error(error.response?.data?.message || "Failed to update status");
     }
   };
@@ -46,18 +47,18 @@ const AdminDashboard = () => {
     if (!window.confirm(`Are you sure you want to delete UID: ${uid}?`)) {
       return;
     }
-    
+
     try {
       await axios.delete("/api/admindelete", {
         data: { uid },
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       });
       toast.success("User deleted successfully");
       fetchUsers(); // Refresh the list
     } catch (error) {
-      console.error('Delete error:', error.response?.data || error);
+      console.error("Delete error:", error.response?.data || error);
       toast.error(error.response?.data?.message || "Failed to delete user");
     }
   };
@@ -71,26 +72,29 @@ const AdminDashboard = () => {
       ) : (
         <div className="grid gap-4">
           {users.map((user) => (
-            <div key={user.uid} className="border p-4 rounded-lg shadow flex justify-between items-center">
+            <div
+              key={user.uid}
+              className="border p-4 rounded-lg shadow flex justify-between items-center"
+            >
               <div>
                 <p className="text-lg font-semibold">UID: {user.uid}</p>
                 <p className="text-sm">Current Status: {user.status}</p>
               </div>
               <div className="flex gap-2 flex-wrap">
                 <button
-                  onClick={() => updateStatus(user.uid, 'completed')}
+                  onClick={() => updateStatus(user.uid, "completed")}
                   className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
                 >
                   Complete
                 </button>
                 <button
-                  onClick={() => updateStatus(user.uid, 'pending')}
+                  onClick={() => updateStatus(user.uid, "pending")}
                   className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
                 >
                   Pending
                 </button>
                 <button
-                  onClick={() => updateStatus(user.uid, 'invalid')}
+                  onClick={() => updateStatus(user.uid, "invalid")}
                   className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
                 >
                   Invalid
@@ -108,6 +112,6 @@ const AdminDashboard = () => {
       )}
     </div>
   );
-}
+};
 
 export default AdminDashboard;

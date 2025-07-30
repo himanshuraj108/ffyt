@@ -6,18 +6,18 @@ export async function OPTIONS(req) {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Allow': 'PUT, OPTIONS',
-      'Content-Type': 'application/json',
+      Allow: "PUT, OPTIONS",
+      "Content-Type": "application/json",
     },
   });
 }
 
 export async function PUT(req) {
   try {
-    console.log('AdminUpdate PUT request received');
+    console.log("AdminUpdate PUT request received");
     await dbConnect();
     const body = await req.json();
-    console.log('Request body:', body);
+    console.log("Request body:", body);
     const { uid, status } = body;
 
     // Validate status
@@ -37,13 +37,13 @@ export async function PUT(req) {
     );
 
     if (!result) {
-      return NextResponse.json(
-        { message: "User not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found." }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "Status updated.", user: result }, { status: 200 });
+    return NextResponse.json(
+      { message: "Status updated.", user: result },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       { message: "Update error", error: error.message },

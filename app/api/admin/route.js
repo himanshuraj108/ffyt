@@ -16,14 +16,14 @@ export async function POST(req) {
         { message: "Success", success: true },
         { status: 200 }
       );
-      
+
       response.cookies.set("admin_token", "admin_authenticated", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 60 * 60 * 24 // 24 hours
+        maxAge: 60 * 60 * 24, // 24 hours
       });
-      
+
       return response;
     } else {
       return NextResponse.json(
@@ -32,7 +32,7 @@ export async function POST(req) {
       );
     }
   } catch (error) {
-    console.error("Login route error:", error); // 👀 Add logging
+    console.error("Login route error:", error);
     return NextResponse.json(
       { message: "Server Error", error: error.message, success: false },
       { status: 500 }

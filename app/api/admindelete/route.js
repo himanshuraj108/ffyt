@@ -8,19 +8,13 @@ export async function DELETE(req) {
     const { uid } = await req.json();
 
     if (!uid) {
-      return NextResponse.json(
-        { message: "UID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "UID is required" }, { status: 400 });
     }
 
     const deletedUser = await User.findOneAndDelete({ uid });
 
     if (!deletedUser) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json(

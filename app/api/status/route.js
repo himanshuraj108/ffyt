@@ -7,7 +7,7 @@ export async function GET(req) {
     await dbConnect();
     const users = await User.find({})
       .select('uid status createdAt -_id')
-      .sort({ createdAt: -1 })  // Sort by newest first
+      .sort({ createdAt: -1 })
       .lean()
       .exec();
     
