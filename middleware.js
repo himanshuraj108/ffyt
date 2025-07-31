@@ -1,27 +1,27 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export function middleware() {
-  const html = `
-    <html>
-      <head>
-        <title>Server Error</title>
-      </head>
-      <body style="font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;padding:40px;">
-        <h1 style="color:#990000;">Server Error</h1>
-        <h2>404 - File or directory not found.</h2>
-        <p>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
-      </body>
-    </html>
-  `;
+export function middleware(request) {
+  const path = request.nextUrl.pathname;
+  const isAdminPath = path === "/admin";
+  const isDashboardPath = path.startsWith("/dashboard");
+  const token = request.cookies.get("admin_token")?.value || "";
 
-  return new NextResponse(html, {
-    status: 404,
-    headers: {
-      'Content-Type': 'text/html',
-    },
-  });
+  // Force authentication for dashboard and api/adminupdate
+  if ((isDashboardPath || path.startsWith("/api/adminupdate")) && !token) {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  // Redirect authenticated users away from login
+  if (isAdminPath && token) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 }
 
 export const config = {
-  matcher: '/:path*',
+  matcher: [
+    "/dashboard/:path*",
+    "/admin",
+    "/api/adminupdate/:path*",
+    "/api/admindelete/:path*"
+  ]
 };
