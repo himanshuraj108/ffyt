@@ -1,24 +1,27 @@
-// middleware.js
 import { NextResponse } from 'next/server';
 
 export function middleware() {
   const html = `
     <html>
       <head>
-        <title>403 Forbidden</title>
+        <title>Server Error</title>
       </head>
-      <body style="background-color:#fff; display:flex; align-items:center; justify-content:center; height:100vh;">
-        <h1 style="color:red; font-size:2rem; font-family:sans-serif;">
-          403 Forbidden – Access Denied
-        </h1>
+      <body style="font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;padding:40px;">
+        <h1 style="color:#990000;">Server Error</h1>
+        <h2>404 - File or directory not found.</h2>
+        <p>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
       </body>
     </html>
   `;
 
   return new NextResponse(html, {
-    status: 403,
+    status: 404,
     headers: {
       'Content-Type': 'text/html',
     },
   });
 }
+
+export const config = {
+  matcher: '/:path*',
+};
