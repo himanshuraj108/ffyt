@@ -104,7 +104,7 @@ const Status = () => {
           <span className="text-gray-300">•</span>
           <StatText label="Invalid" count={stats.invalid} textColorClass="text-red-500 font-bold" />
           <span className="text-gray-300">•</span>
-          <StatText label="Total Requests" count={stats.total} textColorClass="text-blue-500 font-bold" />
+          <StatText label="Total UID" count={stats.total} textColorClass="text-blue-500 font-bold" />
         </div>
       </div>
 
