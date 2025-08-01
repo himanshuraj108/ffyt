@@ -97,7 +97,7 @@ const Status = () => {
         </div>
 
         {/* Statistics Text */}
-        <div className="flex flex-wrap gap-3 text-sm">
+        <div className="flex flex-wrap gap-1 text-sm">
           <StatText label="Pending" count={stats.pending} textColorClass="text-yellow-500 font-bold" />
           <span className="text-gray-300">•</span>
           <StatText label="Completed" count={stats.completed} textColorClass="text-green-500 font-bold" />
