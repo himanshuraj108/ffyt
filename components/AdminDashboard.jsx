@@ -6,6 +6,7 @@ import { toast, Toaster } from "sonner";
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
     fetchUsers();
@@ -24,48 +25,75 @@ const AdminDashboard = () => {
 
   const updateStatus = async (uid, newStatus) => {
     try {
-      console.log("Updating status:", { uid, status: newStatus });
       const response = await axios.put(
         "/api/adminupdate",
         { uid, status: newStatus },
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         }
       );
-      console.log("Update response:", response.data);
       toast.success("Status updated successfully");
       fetchUsers(); // Refresh the list
     } catch (error) {
-      console.error("Update error:", error.response?.data || error);
       toast.error(error.response?.data?.message || "Failed to update status");
     }
   };
 
   const deleteUser = async (uid) => {
-    if (!window.confirm(`Are you sure you want to delete UID: ${uid}?`)) {
-      return;
-    }
-
+    if (!window.confirm(`Are you sure you want to delete UID: ${uid}?`)) return;
     try {
       await axios.delete("/api/admindelete", {
         data: { uid },
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
       toast.success("User deleted successfully");
-      fetchUsers(); // Refresh the list
+      fetchUsers();
     } catch (error) {
-      console.error("Delete error:", error.response?.data || error);
       toast.error(error.response?.data?.message || "Failed to delete user");
     }
   };
 
+  const toggleOnlineStatus = () => {
+  const newStatus = !isOnline;
+  setIsOnline(newStatus);
+  localStorage.setItem("appStatus", newStatus ? "Live" : "offline");
+};
+
+useEffect(() => {
+  const syncStatus = () => {
+    const status = localStorage.getItem("appStatus");
+    setIsOnline(status === "Live");
+  };
+
+  // Initial sync
+  syncStatus();
+
+  // Listen for changes in localStorage across tabs/windows
+  window.addEventListener("storage", syncStatus);
+
+  // Cleanup
+  return () => window.removeEventListener("storage", syncStatus);
+}, []);
+
   return (
     <div className="container mx-auto p-4">
       <Toaster />
+      {/* Online/Offline Toggle */}
+      <div className="flex justify-end items-center gap-2 mb-4">
+        <span
+          className={`w-3 h-3 rounded-full animate-pulse ${
+            isOnline ? "bg-green-500" : "bg-red-500"
+          }`}
+          title={isOnline ? "Live" : "Offline"}
+        />
+        <button
+          onClick={toggleOnlineStatus}
+          className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded"
+        >
+          {isOnline ? "Go Offline" : "Go Online"}
+        </button>
+      </div>
+
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
       {loading ? (
         <p>Loading...</p>
@@ -83,25 +111,25 @@ const AdminDashboard = () => {
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => updateStatus(user.uid, "completed")}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                 >
                   Complete
                 </button>
                 <button
                   onClick={() => updateStatus(user.uid, "pending")}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
                 >
                   Pending
                 </button>
                 <button
                   onClick={() => updateStatus(user.uid, "invalid")}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                 >
                   Invalid
                 </button>
                 <button
                   onClick={() => deleteUser(user.uid)}
-                  className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900 transition-colors"
+                  className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
                 >
                   Delete
                 </button>
