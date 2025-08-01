@@ -50,7 +50,7 @@ const Status = () => {
     switch (status) {
       case 'completed':
         return 'text-green-600';
-      case 'invalid or Non-Indian server':
+      case 'invalid':
         return 'text-red-600';
       case 'pending':
       default:
