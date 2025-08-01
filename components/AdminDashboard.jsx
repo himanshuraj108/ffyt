@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
+import { FaArrowLeft } from "react-icons/fa";
 import { toast, Toaster } from "sonner";
 
 const AdminDashboard = () => {
@@ -54,32 +56,39 @@ const AdminDashboard = () => {
   };
 
   const toggleOnlineStatus = () => {
-  const newStatus = !isOnline;
-  setIsOnline(newStatus);
-  localStorage.setItem("appStatus", newStatus ? "Live" : "offline");
-};
-
-useEffect(() => {
-  const syncStatus = () => {
-    const status = localStorage.getItem("appStatus");
-    setIsOnline(status === "Live");
+    const newStatus = !isOnline;
+    setIsOnline(newStatus);
+    localStorage.setItem("appStatus", newStatus ? "Live" : "offline");
   };
 
-  // Initial sync
-  syncStatus();
+  useEffect(() => {
+    const syncStatus = () => {
+      const status = localStorage.getItem("appStatus");
+      setIsOnline(status === "Live");
+    };
 
-  // Listen for changes in localStorage across tabs/windows
-  window.addEventListener("storage", syncStatus);
+    // Initial sync
+    syncStatus();
 
-  // Cleanup
-  return () => window.removeEventListener("storage", syncStatus);
-}, []);
+    // Listen for changes in localStorage across tabs/windows
+    window.addEventListener("storage", syncStatus);
+
+    // Cleanup
+    return () => window.removeEventListener("storage", syncStatus);
+  }, []);
 
   return (
     <div className="container mx-auto p-4">
       <Toaster />
       {/* Online/Offline Toggle */}
       <div className="flex justify-end items-center gap-2 mb-4">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg mr-[155px]"
+        >
+          <FaArrowLeft className="text-sm" />
+          <span>Back</span>
+        </Link>
         <span
           className={`w-3 h-3 rounded-full animate-pulse ${
             isOnline ? "bg-green-500" : "bg-red-500"
@@ -95,6 +104,7 @@ useEffect(() => {
       </div>
 
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+
       {loading ? (
         <p>Loading...</p>
       ) : (
