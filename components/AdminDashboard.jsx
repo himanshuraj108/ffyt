@@ -94,7 +94,7 @@ const AdminDashboard = () => {
                   Pending
                 </button>
                 <button
-                  onClick={() => updateStatus(user.uid, "invalid")}
+                  onClick={() => updateStatus(user.uid, "invalid or Non-Indian server")}
                   className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
                 >
                   Invalid
