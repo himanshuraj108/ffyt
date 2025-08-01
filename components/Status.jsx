@@ -20,7 +20,7 @@ const Status = () => {
   // Sync status from localStorage
   useEffect(() => {
     const status = localStorage.getItem("appStatus");
-    setIsOnline(status === "Live");
+    setIsOnline(status === "Editing");
   }, []);
 
   useEffect(() => {
@@ -81,10 +81,10 @@ const Status = () => {
           className={`w-3 h-3 rounded-full animate-pulse ${
             isOnline ? "bg-green-500" : "bg-red-500"
           }`}
-          title={isOnline ? "Live" : "Offline"}
+          title={isOnline ? "Editing" : "Offline"}
         />
         <span className="text-sm text-gray-600">
-          {isOnline ? "Live" : "Offline"}
+          {isOnline ? "Editing" : "Offline"}
         </span>
       </div>
 

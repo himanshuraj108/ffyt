@@ -58,13 +58,13 @@ const AdminDashboard = () => {
   const toggleOnlineStatus = () => {
     const newStatus = !isOnline;
     setIsOnline(newStatus);
-    localStorage.setItem("appStatus", newStatus ? "Live" : "offline");
+    localStorage.setItem("appStatus", newStatus ? "Editing" : "offline");
   };
 
   useEffect(() => {
     const syncStatus = () => {
       const status = localStorage.getItem("appStatus");
-      setIsOnline(status === "Live");
+      setIsOnline(status === "Editing");
     };
 
     // Initial sync
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
           className={`w-3 h-3 rounded-full animate-pulse ${
             isOnline ? "bg-green-500" : "bg-red-500"
           }`}
-          title={isOnline ? "Live" : "Offline"}
+          title={isOnline ? "Editing" : "Offline"}
         />
         <button
           onClick={toggleOnlineStatus}

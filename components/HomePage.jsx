@@ -113,7 +113,7 @@ const HomePage = () => {
               `}</style>
 
               <div className="text-center pb-5 font-bold text-sm bg-gradient-to-r from-orange-600 via-white to-green-600 text-transparent bg-clip-text drop-shadow-md flag-hoist-animation">
-                Only for Indian server
+                Indian server
               </div>
             </div>
             <input
