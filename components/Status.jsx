@@ -2,10 +2,19 @@
 import React, { useEffect, useState } from 'react'
 import { Toaster, toast } from "sonner"
 import Link from 'next/link'
-import { FaArrowLeft } from 'react-icons/fa'
+import { FaArrowLeft, FaSearch } from 'react-icons/fa'
 
 const Status = () => {
   const [users, setUsers] = useState([])
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [stats, setStats] = useState({
+    pending: 0,
+    completed: 0,
+    invalid: 0,
+    deleted: 0,
+    total: 0
+  })
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -14,6 +23,8 @@ const Status = () => {
         const data = await response.json()
         if (response.ok) {
           setUsers(data.users)
+          setFilteredUsers(data.users)
+          setStats(data.stats)
         } else {
           toast.error('Failed to fetch users')
         }
@@ -23,6 +34,17 @@ const Status = () => {
     }
     fetchUsers()
   }, [])
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredUsers(users)
+    } else {
+      const filtered = users.filter(user => 
+        user.uid.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      setFilteredUsers(filtered)
+    }
+  }, [searchQuery, users])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -35,6 +57,13 @@ const Status = () => {
         return 'text-yellow-600';
     }
   }
+
+  const StatText = ({ label, count, textColorClass }) => (
+    <div className="text-sm">
+      <span className={textColorClass}>{count}</span>
+      <span className="text-gray-600 ml-1">{label}</span>
+    </div>
+  )
 
   return (
     <div className="container mx-auto p-4">
@@ -49,24 +78,59 @@ const Status = () => {
         </Link>
         <h1 className="text-2xl font-bold">Check Your Status</h1>
       </div>
-      <div className="grid gap-4">
-        {users.map((user) => (
-          <div key={user.uid} className="border p-4 rounded-lg shadow">
-            <p className="text-lg font-semibold">UID: {user.uid}</p>
-            <p className={`text-sm mt-2 font-medium ${getStatusColor(user.status)}`}>
-              Status: {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-            </p>
-            <p className="text-xs text-gray-600 mt-1">
-              Added: {new Date(user.createdAt).toLocaleString('en-IN', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-                timeZone: 'Asia/Kolkata'
-              })}
-            </p>
+
+      <div className="flex flex-col space-y-6">
+        {/* Search Bar */}
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <FaSearch className="text-gray-400" />
+          </div>
+          <input
+            type="number"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            placeholder="Search by UID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        {/* Statistics Text */}
+        <div className="flex flex-wrap gap-4 text-sm">
+          <StatText label="Pending" count={stats.pending} textColorClass="text-yellow-500 font-bold" />
+          <span className="text-gray-300">•</span>
+          <StatText label="Completed" count={stats.completed} textColorClass="text-green-500 font-bold" />
+          <span className="text-gray-300">•</span>
+          <StatText label="Invalid" count={stats.invalid} textColorClass="text-red-500 font-bold" />
+          <span className="text-gray-300">•</span>
+          <StatText label="Total Requests" count={stats.total} textColorClass="text-blue-500 font-bold" />
+        </div>
+      </div>
+
+      <div className="grid gap-4 mt-6">
+        {filteredUsers.map((user) => (
+          <div key={user.uid} className="border p-4 rounded-lg shadow flex justify-between items-start">
+            <div>
+              <p className="text-lg font-semibold">UID: {user.uid}</p>
+              <p className={`text-sm mt-2 font-medium ${getStatusColor(user.status)}`}>
+                Status: {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+              </p>
+              <p className="text-xs text-gray-600 mt-1">
+                Added: {new Date(user.createdAt).toLocaleString('en-IN', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                  timeZone: 'Asia/Kolkata'
+                })}
+              </p>
+            </div>
+            <div className={`px-3 py-1 rounded-full ${getStatusColor(user.status)} bg-opacity-20`}>
+              <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
+            </div>
           </div>
         ))}
       </div>
