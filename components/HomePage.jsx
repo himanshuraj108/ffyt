@@ -35,15 +35,15 @@ const HomePage = () => {
     <div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-white to-gray-100">
       <div className="flex flex-col w-full max-w-md mx-auto px-4">
         <div className="relative w-full">
-          <Image 
-            src={banner} 
-            alt="banner" 
-            className="w-full h-auto rounded-lg shadow-lg mt-4" 
+          <Image
+            src={banner}
+            alt="banner"
+            className="w-full h-auto rounded-lg shadow-lg mt-4"
             priority
           />
           <div className="mt-6 text-center">
-            <Link 
-              href="/status" 
+            <Link
+              href="/status"
               className="inline-block bg-blue-600 text-white px-6 py-3 rounded-full text-lg font-semibold shadow-md hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 animate-pulse"
             >
               CHECK YOUR STATUS
@@ -68,6 +68,54 @@ const HomePage = () => {
           className="flex flex-col items-center justify-center gap-6 mt-8 bg-amber-300 p-6 rounded-2xl shadow-lg transform hover:shadow-xl transition-all duration-300 mx-auto w-full max-w-sm"
         >
           <div className="w-full max-w-xs">
+            <div className="relative">
+              {/* Custom CSS for animations */}
+              <style jsx>{`
+                @keyframes flagHoist {
+                  0% {
+                    transform: translateY(20px);
+                    opacity: 0;
+                  }
+                  100% {
+                    transform: translateY(0);
+                    opacity: 1;
+                  }
+                }
+
+                @keyframes textWave {
+                  0%,
+                  100% {
+                    transform: translateY(0);
+                  }
+                  50% {
+                    transform: translateY(-3px);
+                  }
+                }
+
+                @keyframes patrioticGlow {
+                  0%,
+                  100% {
+                    filter: drop-shadow(0 0 5px rgba(255, 153, 51, 0.4));
+                  }
+                  33% {
+                    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+                  }
+                  66% {
+                    filter: drop-shadow(0 0 5px rgba(0, 128, 0, 0.4));
+                  }
+                }
+
+                .flag-hoist-animation {
+                  animation: flagHoist 2s ease-out forwards,
+                    textWave 3s ease-in-out infinite 2s,
+                    patrioticGlow 4s ease-in-out infinite 2s;
+                }
+              `}</style>
+
+              <div className="text-center pb-5 font-bold text-sm bg-gradient-to-r from-orange-600 via-white to-green-600 text-transparent bg-clip-text drop-shadow-md flag-hoist-animation">
+                Only for Indian server
+              </div>
+            </div>
             <input
               type="number"
               placeholder="ENTER YOUR UID"
@@ -109,31 +157,34 @@ const HomePage = () => {
           </div>
         </form>
       </div>
-      
+
       <div className="mt-auto">
         <div className="flex gap-6 items-center justify-center py-6">
-          <Link 
+          <Link
             href="https://www.youtube.com/@R_Y_L_Shorts/videos"
             className="transform hover:scale-110 transition-all duration-300"
           >
             <FaYoutube className="text-6xl text-red-600 filter drop-shadow-lg hover:text-red-700" />
           </Link>
-          <Link 
+          <Link
             href="https://www.instagram.com/r_y_l_reels/"
             className="transform hover:scale-110 transition-all duration-300"
           >
             <FaInstagram className="text-5xl text-purple-600 filter drop-shadow-lg hover:text-purple-700" />
           </Link>
         </div>
-        
+
         <footer className="bg-white/80 backdrop-blur-sm py-4 px-4 shadow-inner">
           <div className="text-center">
-            <Link 
-              href="/admin" 
+            <Link
+              href="/admin"
               className="text-gray-600 hover:text-gray-800 text-sm font-medium hover:underline transition-colors duration-200"
             >
               Admin Login
             </Link>
+          </div>
+          <div className="text-center text-sm text-gray-500">
+            Developed by Himanshu Raj
           </div>
         </footer>
       </div>
