@@ -22,7 +22,7 @@ const HomePage = () => {
       toast.success("Added successfully");
       router.push("https://ritikyadavlive.vercel.app/status");
     } catch (error) {
-      toast.error("Invalid UID");
+      toast.error("UID already exists or Invalid");
     } finally {
       setloader(false);
     }
