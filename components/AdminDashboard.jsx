@@ -9,6 +9,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(true);
+  const [searchUID, setSearchUID] = useState(""); // 🔍 State for UID search
 
   useEffect(() => {
     fetchUsers();
@@ -27,7 +28,7 @@ const AdminDashboard = () => {
 
   const updateStatus = async (uid, newStatus) => {
     try {
-      const response = await axios.put(
+      await axios.put(
         "/api/adminupdate",
         { uid, status: newStatus },
         {
@@ -35,7 +36,7 @@ const AdminDashboard = () => {
         }
       );
       toast.success("Status updated successfully");
-      fetchUsers(); // Refresh the list
+      fetchUsers();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update status");
     }
@@ -67,20 +68,21 @@ const AdminDashboard = () => {
       setIsOnline(status === "Editing");
     };
 
-    // Initial sync
     syncStatus();
-
-    // Listen for changes in localStorage across tabs/windows
     window.addEventListener("storage", syncStatus);
-
-    // Cleanup
     return () => window.removeEventListener("storage", syncStatus);
   }, []);
+
+  // 🔎 Filter users by UID
+  const filteredUsers = users.filter((user) =>
+    user.uid.toString().includes(searchUID.trim())
+  );
 
   return (
     <div className="w-[768px] mx-auto p-4">
       <Toaster />
-      {/* Online/Offline Toggle */}
+
+      {/* Top Controls */}
       <div className="flex justify-end items-center gap-2 mb-4">
         <Link
           href="/"
@@ -103,49 +105,62 @@ const AdminDashboard = () => {
         </button>
       </div>
 
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+
+      {/* 🔍 UID Search */}
+      <input
+        type="number"
+        placeholder="Search by UID"
+        value={searchUID}
+        onChange={(e) => setSearchUID(e.target.value)}
+        className="w-full mb-6 px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+      />
 
       {loading ? (
         <p>Loading...</p>
       ) : (
         <div className="grid gap-4">
-          {users.map((user) => (
-            <div
-              key={user.uid}
-              className="border p-4 rounded-lg shadow flex justify-between items-center"
-            >
-              <div>
-                <p className="text-lg font-semibold">UID: {user.uid}</p>
-                <p className="text-sm">Current Status: {user.status}</p>
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
+              <div
+                key={user.uid}
+                className="border p-4 rounded-lg shadow flex justify-between items-center"
+              >
+                <div>
+                  <p className="text-lg font-semibold">UID: {user.uid}</p>
+                  <p className="text-sm">Current Status: {user.status}</p>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => updateStatus(user.uid, "completed")}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                  >
+                    Complete
+                  </button>
+                  <button
+                    onClick={() => updateStatus(user.uid, "pending")}
+                    className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                  >
+                    Pending
+                  </button>
+                  <button
+                    onClick={() => updateStatus(user.uid, "invalid")}
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Invalid
+                  </button>
+                  <button
+                    onClick={() => deleteUser(user.uid)}
+                    className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-2 flex-wrap">
-                <button
-                  onClick={() => updateStatus(user.uid, "completed")}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                >
-                  Complete
-                </button>
-                <button
-                  onClick={() => updateStatus(user.uid, "pending")}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                >
-                  Pending
-                </button>
-                <button
-                  onClick={() => updateStatus(user.uid, "invalid")}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Invalid
-                </button>
-                <button
-                  onClick={() => deleteUser(user.uid)}
-                  className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-gray-500">No users found for UID.</p>
+          )}
         </div>
       )}
     </div>
