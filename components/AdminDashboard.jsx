@@ -78,7 +78,7 @@ const AdminDashboard = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="w-full max-w-[600px] mx-auto p-4">
       <Toaster />
       {/* Online/Offline Toggle */}
       <div className="flex justify-end items-center gap-2 mb-4">
