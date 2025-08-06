@@ -73,7 +73,7 @@ const Status = () => {
   );
 
   return (
-    <div className="w-[450] mx-auto p-4">
+    <div className="w-[450px] mx-auto min-h-screen flex flex-col px-4 py-4">
       <Toaster />
       {/* Online/Offline Indicator */}
       <div className="flex justify-end items-center gap-2 mb-2">
@@ -83,7 +83,7 @@ const Status = () => {
           }`}
           title={isOnline ? "Editing" : "Offline"}
         />
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-gray-600 animate-pulse">
           {isOnline ? "Editing" : "Offline"}
         </span>
       </div>
@@ -96,7 +96,13 @@ const Status = () => {
           <FaArrowLeft className="text-sm" />
           <span>Back</span>
         </Link>
-        <h1 className="text-2xl font-bold">Check Your Status</h1>
+        <h1 className="text-xl font-bold">Check Your Status</h1>
+      </div>
+
+      <div className="text-center mt-4">
+        <p className="text-lg text-blue-600 font-semibold animate-bounce">
+          Only 9 UIDs will be uploaded per day!
+        </p>
       </div>
 
       <div className="flex flex-col space-y-6">
@@ -179,22 +185,29 @@ const Status = () => {
               )} bg-opacity-20`}
             >
               <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
-              <p className="text-xs text-gray-600 mt-1 font-medium">
+              <p
+                className={`text-xs text-gray-600 mt-4 font-medium ${
+                  user.queueNumber <= 9 ? "animate-bounce" : ""
+                }`}
+              >
                 Upload Date:{" "}
-                <span className="text-green-600 animate-ping">
-                  {new Date(
-                    new Date(user.createdAt).setDate(
-                      new Date(user.createdAt).getDate() + 18
-                    )
-                  ).toLocaleString("en-IN", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                    timeZone: "Asia/Kolkata",
-                  })}
+                <span
+                  className={`inline-block font-semibold ${
+                    user.queueNumber <= 9 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {user.queueNumber <= 9
+                    ? "Today"
+                    : new Date(
+                        new Date(user.createdAt).setDate(
+                          new Date(user.createdAt).getDate() +
+                            Math.floor((user.queueNumber - 1) / 6)
+                        )
+                      ).toLocaleDateString("en-IN", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
                 </span>
               </p>
             </div>
