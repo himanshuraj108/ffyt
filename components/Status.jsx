@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Toaster, toast } from "sonner";
 import Link from "next/link";
 import { FaArrowLeft, FaSearch } from "react-icons/fa";
@@ -18,6 +18,8 @@ const Status = () => {
     total: 0,
   });
 
+  const cardRef = useRef(null);
+
   useEffect(() => {
     const status = localStorage.getItem("appStatus");
     setIsOnline(status === "Editing");
@@ -25,9 +27,14 @@ const Status = () => {
     const uidFromStorage = localStorage.getItem("currentUserUid");
     if (uidFromStorage) {
       setHighlightUid(uidFromStorage);
-      setTimeout(() => setHighlightUid(null), 3000); // remove highlight after 3s
     }
   }, []);
+
+  useEffect(() => {
+    if (cardRef.current) {
+      cardRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightUid]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -83,16 +90,6 @@ const Status = () => {
     .sort((a, b) => a.queueNumber - b.queueNumber)
     .slice(0, 6);
 
-  localStorage.setItem("currentUserUid", user.uid);
-  window.location.href = "/status";
-
-  useEffect(() => {
-    const uidFromStorage = localStorage.getItem("currentUserUid");
-    if (uidFromStorage) {
-      setHighlightUid(uidFromStorage);
-    }
-  }, []);
-
   return (
     <div className="min-w-[450px] w-[450px] max-w-full mx-auto min-h-screen px-4 py-4">
       <Toaster />
@@ -144,48 +141,6 @@ const Status = () => {
           />
         </div>
 
-        {filteredUsers.map((user, index) => {
-          const isHighlighted = user.uid === highlightUid;
-          return (
-            <div
-              key={user.uid}
-              className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
-                isHighlighted ? "border-blue-500 bg-blue-50 animate-pulse" : ""
-              }`}
-            >
-              <div>
-                <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
-                <p className="text-lg font-semibold">UID: {user.uid}</p>
-                <p
-                  className={`text-sm mt-2 font-medium ${getStatusColor(
-                    user.status
-                  )}`}
-                >
-                  Status:{" "}
-                  {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
-                  Added:{" "}
-                  {new Date(user.createdAt).toLocaleString("en-IN", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                    timeZone: "Asia/Kolkata",
-                  })}
-                </p>
-                {isHighlighted && (
-                  <span className="inline-block mt-2 text-xs text-blue-600 font-medium bg-blue-100 px-2 py-0.5 rounded">
-                    Your UID
-                  </span>
-                )}
-              </div>
-              {/* Right-side info stays unchanged */}
-            </div>
-          );
-        })}
         {/* Statistics */}
         <div className="flex flex-wrap gap-1 text-sm">
           <StatText
@@ -244,6 +199,7 @@ const Status = () => {
           return (
             <div
               key={user.uid}
+              ref={isHighlighted ? cardRef : null}
               className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
                 isHighlighted ? "border-blue-500 bg-blue-50 animate-pulse" : ""
               }`}
@@ -285,7 +241,7 @@ const Status = () => {
                 <p className="text-sm font-semibold">
                   Queue #{user.queueNumber}
                 </p>
-                <p
+                                <p
                   className={`text-xs text-gray-600 mt-4 font-medium ${
                     user.status === "pending" && user.queueNumber <= 6
                       ? "animate-bounce"
