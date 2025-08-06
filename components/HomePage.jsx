@@ -19,6 +19,7 @@ const HomePage = () => {
     setloader(true);
     try {
       await axios.post("/api/users", formdata);
+      localStorage.setItem("currentUserUid", formdata.uid);
       toast.success("Added successfully");
       router.push("https://ritikyadavlive.vercel.app/status");
     } catch (error) {
