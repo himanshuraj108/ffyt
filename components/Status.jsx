@@ -200,9 +200,11 @@ const Status = () => {
             <div
               key={user.uid}
               ref={isHighlighted ? cardRef : null}
-              className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
-                isHighlighted ? "border-blue-500 bg-blue-50 animate-pulse" : ""
-              }`}
+             className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
+  isHighlighted
+    ? "border-blue-500 bg-blue-100 ring-2 ring-blue-400 scale-[1.02] animate-pulse"
+    : ""
+}`}
             >
               <div>
                 <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
