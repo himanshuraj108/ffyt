@@ -71,6 +71,20 @@ const Status = () => {
     </div>
   );
 
+  // ✅ Logic for Today Uploads (exactly 6 valid UIDs)
+  const sortedPending = filteredUsers
+    .filter((user) => user.status === "pending")
+    .sort((a, b) => a.queueNumber - b.queueNumber);
+
+  const sortedCompleted = filteredUsers
+    .filter((user) => user.status === "completed")
+    .sort((a, b) => a.queueNumber - b.queueNumber);
+
+  const todayUploads = filteredUsers
+    .filter((user) => user.status === "pending")
+    .sort((a, b) => a.queueNumber - b.queueNumber)
+    .slice(0, 6);
+
   return (
     <div className="w-[450px] mx-auto min-h-screen flex flex-col px-4 py-4">
       <Toaster />
@@ -101,7 +115,7 @@ const Status = () => {
 
       <div className="text-center mt-4">
         <p className="text-lg text-blue-600 font-semibold animate-bounce">
-          Only 9 UIDs will be uploaded per day!
+          Only 6 UID's will be upload daily!
         </p>
       </div>
 
@@ -150,7 +164,30 @@ const Status = () => {
         </div>
       </div>
 
-      {/* User Cards */}
+      {/* ✅ Today Uploads Section */}
+      {todayUploads.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-lg font-bold mb-2 text-green-700">
+            Today Uploads
+          </h2>
+          <div className="grid grid-cols-2 gap-2">
+            {todayUploads.map((user, index) => (
+              <div
+                key={user.uid}
+                className="px-3 py-2 border rounded-md shadow text-sm text-gray-800 bg-green-50"
+              >
+                <p className="text-xs text-gray-500 font-bold">{index + 1}</p>
+                <p className="font-semibold">UID: {user.uid}</p>
+                <p className="text-xs text-gray-600">
+                  Queue #{user.queueNumber}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Full User Cards */}
       <div className="grid gap-4 mt-6">
         {filteredUsers.map((user, index) => (
           <div
@@ -197,13 +234,30 @@ const Status = () => {
                 Upload Date:{" "}
                 <span
                   className={`inline-block font-semibold ${
-                    user.status === "pending" && user.queueNumber <= 6
-                      ? "text-green-600"
-                      : "text-red-600"
+                    user.status === "invalid"
+                      ? "text-red-600"
+                      : user.status === "pending"
+                      ? user.queueNumber <= 6
+                        ? "text-green-600"
+                        : "text-red-600"
+                      : "text-green-600"
                   }`}
                 >
-                  {user.status === "pending" && user.queueNumber <= 6
-                    ? "Today"
+                  {user.status === "invalid"
+                    ? "None"
+                    : user.status === "pending"
+                    ? user.queueNumber <= 6
+                      ? "Today"
+                      : new Date(
+                          new Date().setDate(
+                            new Date().getDate() +
+                              Math.floor((user.queueNumber - 1) / 6)
+                          )
+                        ).toLocaleDateString("en-IN", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })
                     : new Date(
                         new Date(user.createdAt).setDate(
                           new Date(user.createdAt).getDate() +
