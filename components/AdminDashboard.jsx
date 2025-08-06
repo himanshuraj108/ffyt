@@ -121,12 +121,13 @@ const AdminDashboard = () => {
       ) : (
         <div className="grid gap-4">
           {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
+            filteredUsers.map((user, index) => (
               <div
                 key={user.uid}
                 className="border p-4 rounded-lg shadow flex justify-between items-center"
               >
                 <div>
+                  <p className="text-sm text-gray-600">Count: {index + 1}</p>
                   <p className="text-lg font-semibold">UID: {user.uid}</p>
                   <p className="text-sm">Current Status: {user.status}</p>
                 </div>
