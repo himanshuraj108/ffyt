@@ -17,7 +17,6 @@ const Status = () => {
     total: 0,
   });
 
-  // Sync status from localStorage
   useEffect(() => {
     const status = localStorage.getItem("appStatus");
     setIsOnline(status === "Editing");
@@ -75,6 +74,7 @@ const Status = () => {
   return (
     <div className="w-[450px] mx-auto min-h-screen flex flex-col px-4 py-4">
       <Toaster />
+
       {/* Online/Offline Indicator */}
       <div className="flex justify-end items-center gap-2 mb-2">
         <span
@@ -150,13 +150,15 @@ const Status = () => {
         </div>
       </div>
 
+      {/* User Cards */}
       <div className="grid gap-4 mt-6">
-        {filteredUsers.map((user) => (
+        {filteredUsers.map((user, index) => (
           <div
             key={user.uid}
             className="border p-4 rounded-lg shadow flex justify-between items-start"
           >
             <div>
+              <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
               <p className="text-lg font-semibold">UID: {user.uid}</p>
               <p
                 className={`text-sm mt-2 font-medium ${getStatusColor(
@@ -187,16 +189,20 @@ const Status = () => {
               <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
               <p
                 className={`text-xs text-gray-600 mt-4 font-medium ${
-                  user.queueNumber <= 9 ? "animate-bounce" : ""
+                  user.status === "pending" && user.queueNumber <= 6
+                    ? "animate-bounce"
+                    : ""
                 }`}
               >
                 Upload Date:{" "}
                 <span
                   className={`inline-block font-semibold ${
-                    user.queueNumber <= 9 ? "text-green-600" : "text-red-600"
+                    user.status === "pending" && user.queueNumber <= 6
+                      ? "text-green-600"
+                      : "text-red-600"
                   }`}
                 >
-                  {user.queueNumber <= 9
+                  {user.status === "pending" && user.queueNumber <= 6
                     ? "Today"
                     : new Date(
                         new Date(user.createdAt).setDate(
