@@ -86,7 +86,7 @@ const Status = () => {
     .slice(0, 6);
 
   return (
-    <div className="w-[450px] mx-auto min-h-screen flex flex-col px-4 py-4">
+    <div className="min-w-[450px] w-[450px] max-w-full mx-auto min-h-screen px-4 py-4">
       <Toaster />
 
       {/* Online/Offline Indicator */}
