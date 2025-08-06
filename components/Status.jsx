@@ -9,6 +9,7 @@ const Status = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isOnline, setIsOnline] = useState(true);
+  const [highlightUid, setHighlightUid] = useState(null);
   const [stats, setStats] = useState({
     pending: 0,
     completed: 0,
@@ -20,6 +21,12 @@ const Status = () => {
   useEffect(() => {
     const status = localStorage.getItem("appStatus");
     setIsOnline(status === "Editing");
+
+    const uidFromStorage = localStorage.getItem("currentUserUid");
+    if (uidFromStorage) {
+      setHighlightUid(uidFromStorage);
+      setTimeout(() => setHighlightUid(null), 3000); // remove highlight after 3s
+    }
   }, []);
 
   useEffect(() => {
@@ -70,15 +77,6 @@ const Status = () => {
       <span className="text-gray-600 ml-1">{label}</span>
     </div>
   );
-
-  // ✅ Logic for Today Uploads (exactly 6 valid UIDs)
-  const sortedPending = filteredUsers
-    .filter((user) => user.status === "pending")
-    .sort((a, b) => a.queueNumber - b.queueNumber);
-
-  const sortedCompleted = filteredUsers
-    .filter((user) => user.status === "completed")
-    .sort((a, b) => a.queueNumber - b.queueNumber);
 
   const todayUploads = filteredUsers
     .filter((user) => user.status === "pending")
@@ -189,90 +187,102 @@ const Status = () => {
 
       {/* Full User Cards */}
       <div className="grid gap-4 mt-6">
-        {filteredUsers.map((user, index) => (
-          <div
-            key={user.uid}
-            className="border p-4 rounded-lg shadow flex justify-between items-start"
-          >
-            <div>
-              <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
-              <p className="text-lg font-semibold">UID: {user.uid}</p>
-              <p
-                className={`text-sm mt-2 font-medium ${getStatusColor(
-                  user.status
-                )}`}
-              >
-                Status:{" "}
-                {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-              </p>
-              <p className="text-xs text-gray-600 mt-1">
-                Added:{" "}
-                {new Date(user.createdAt).toLocaleString("en-IN", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                  timeZone: "Asia/Kolkata",
-                })}
-              </p>
-            </div>
+        {filteredUsers.map((user, index) => {
+          const isHighlighted = user.uid === highlightUid;
+          return (
             <div
-              className={`px-3 py-1 rounded-full ${getStatusColor(
-                user.status
-              )} bg-opacity-20`}
+              key={user.uid}
+              className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
+                isHighlighted ? "border-blue-500 bg-blue-50 animate-pulse" : ""
+              }`}
             >
-              <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
-              <p
-                className={`text-xs text-gray-600 mt-4 font-medium ${
-                  user.status === "pending" && user.queueNumber <= 6
-                    ? "animate-bounce"
-                    : ""
-                }`}
+              <div>
+                <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
+                <p className="text-lg font-semibold">UID: {user.uid}</p>
+                <p
+                  className={`text-sm mt-2 font-medium ${getStatusColor(
+                    user.status
+                  )}`}
+                >
+                  Status:{" "}
+                  {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                </p>
+                <p className="text-xs text-gray-600 mt-1">
+                  Added:{" "}
+                  {new Date(user.createdAt).toLocaleString("en-IN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                    timeZone: "Asia/Kolkata",
+                  })}
+                </p>
+                {isHighlighted && (
+                  <span className="inline-block mt-2 text-xs text-blue-600 font-medium bg-blue-100 px-2 py-0.5 rounded">
+                    Your UID
+                  </span>
+                )}
+              </div>
+              <div
+                className={`px-3 py-1 rounded-full ${getStatusColor(
+                  user.status
+                )} bg-opacity-20`}
               >
-                Upload Date:{" "}
-                <span
-                  className={`inline-block font-semibold ${
-                    user.status === "invalid"
-                      ? "text-red-600"
-                      : user.status === "pending"
-                      ? user.queueNumber <= 6
-                        ? "text-green-600"
-                        : "text-red-600"
-                      : "text-green-600"
+                <p className="text-sm font-semibold">
+                  Queue #{user.queueNumber}
+                </p>
+                <p
+                  className={`text-xs text-gray-600 mt-4 font-medium ${
+                    user.status === "pending" && user.queueNumber <= 6
+                      ? "animate-bounce"
+                      : ""
                   }`}
                 >
-                  {user.status === "invalid"
-                    ? "None"
-                    : user.status === "pending"
-                    ? user.queueNumber <= 6
-                      ? "Today"
+                  Upload Date:{" "}
+                  <span
+                    className={`inline-block font-semibold ${
+                      user.status === "invalid"
+                        ? "text-red-600"
+                        : user.status === "pending"
+                        ? user.queueNumber <= 6
+                          ? "text-green-600"
+                          : "text-red-600"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {user.status === "invalid"
+                      ? "None"
+                      : user.status === "pending"
+                      ? user.queueNumber <= 6
+                        ? "Today"
+                        : new Date(
+                            new Date().setDate(
+                              new Date().getDate() +
+                                Math.floor((user.queueNumber - 1) / 6)
+                            )
+                          ).toLocaleDateString("en-IN", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })
                       : new Date(
-                          new Date().setDate(
-                            new Date().getDate() +
+                          new Date(user.createdAt).setDate(
+                            new Date(user.createdAt).getDate() +
                               Math.floor((user.queueNumber - 1) / 6)
                           )
                         ).toLocaleDateString("en-IN", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
-                        })
-                    : new Date(
-                        new Date(user.createdAt).setDate(
-                          new Date(user.createdAt).getDate() +
-                            Math.floor((user.queueNumber - 1) / 6)
-                        )
-                      ).toLocaleDateString("en-IN", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                </span>
-              </p>
+                        })}
+                  </span>
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
