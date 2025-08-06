@@ -73,7 +73,7 @@ const Status = () => {
   );
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="w-[450] mx-auto p-4">
       <Toaster />
       {/* Online/Offline Indicator */}
       <div className="flex justify-end items-center gap-2 mb-2">
@@ -179,6 +179,24 @@ const Status = () => {
               )} bg-opacity-20`}
             >
               <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
+              <p className="text-xs text-gray-600 mt-1 font-medium">
+                Upload Date:{" "}
+                <span className="text-green-600 animate-ping">
+                  {new Date(
+                    new Date(user.createdAt).setDate(
+                      new Date(user.createdAt).getDate() + 18
+                    )
+                  ).toLocaleString("en-IN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                    timeZone: "Asia/Kolkata",
+                  })}
+                </span>
+              </p>
             </div>
           </div>
         ))}
