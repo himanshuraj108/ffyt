@@ -71,6 +71,7 @@ const Status = () => {
     </div>
   );
 
+  // ✅ Logic for Today Uploads (exactly 6 valid UIDs)
   const sortedPending = filteredUsers
     .filter((user) => user.status === "pending")
     .sort((a, b) => a.queueNumber - b.queueNumber);
@@ -79,9 +80,10 @@ const Status = () => {
     .filter((user) => user.status === "completed")
     .sort((a, b) => a.queueNumber - b.queueNumber);
 
-  const completedCount = sortedCompleted.length;
-  const todayBatchIndex = Math.floor(completedCount / 6);
-  const todayUploads = sortedPending.slice(todayBatchIndex * 6, (todayBatchIndex + 1) * 6);
+  const todayUploads = filteredUsers
+    .filter((user) => user.status === "pending")
+    .sort((a, b) => a.queueNumber - b.queueNumber)
+    .slice(0, 6);
 
   return (
     <div className="min-w-[450px] w-[450px] max-w-full mx-auto min-h-screen px-4 py-4">
@@ -136,20 +138,38 @@ const Status = () => {
 
         {/* Statistics */}
         <div className="flex flex-wrap gap-1 text-sm">
-          <StatText label="Pending" count={stats.pending} textColorClass="text-yellow-500 font-bold" />
+          <StatText
+            label="Pending"
+            count={stats.pending}
+            textColorClass="text-yellow-500 font-bold"
+          />
           <span className="text-gray-300">•</span>
-          <StatText label="Completed" count={stats.completed} textColorClass="text-green-500 font-bold" />
+          <StatText
+            label="Completed"
+            count={stats.completed}
+            textColorClass="text-green-500 font-bold"
+          />
           <span className="text-gray-300">•</span>
-          <StatText label="Invalid" count={stats.invalid} textColorClass="text-red-500 font-bold" />
+          <StatText
+            label="Invalid"
+            count={stats.invalid}
+            textColorClass="text-red-500 font-bold"
+          />
           <span className="text-gray-300">•</span>
-          <StatText label="Total UID" count={stats.total} textColorClass="text-blue-500 font-bold" />
+          <StatText
+            label="Total UID"
+            count={stats.total}
+            textColorClass="text-blue-500 font-bold"
+          />
         </div>
       </div>
 
       {/* ✅ Today Uploads Section */}
       {todayUploads.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-lg font-bold mb-2 text-green-700">Today Uploads</h2>
+          <h2 className="text-lg font-bold mb-2 text-green-700">
+            Today Uploads
+          </h2>
           <div className="grid grid-cols-2 gap-2">
             {todayUploads.map((user, index) => (
               <div
@@ -158,7 +178,9 @@ const Status = () => {
               >
                 <p className="text-xs text-gray-500 font-bold">{index + 1}</p>
                 <p className="font-semibold">UID: {user.uid}</p>
-                <p className="text-xs text-gray-600">Queue #{user.queueNumber}</p>
+                <p className="text-xs text-gray-600">
+                  Queue #{user.queueNumber}
+                </p>
               </div>
             ))}
           </div>
@@ -167,73 +189,90 @@ const Status = () => {
 
       {/* Full User Cards */}
       <div className="grid gap-4 mt-6">
-        {filteredUsers.map((user, index) => {
-          const batchIndex = Math.floor((user.queueNumber - 1) / 6);
-          const currentBatchIndex = Math.floor(sortedCompleted.length / 6);
-          const isToday = batchIndex === currentBatchIndex;
-          const isFuture = batchIndex > currentBatchIndex;
-
-          const uploadDateLabel =
-            user.status === "invalid"
-              ? "None"
-              : isToday
-              ? "Today"
-              : new Date(new Date().setDate(new Date().getDate() + (batchIndex - currentBatchIndex)))
-                  .toLocaleDateString("en-IN", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  });
-
-          const uploadDateColor =
-            user.status === "invalid"
-              ? "text-red-600"
-              : isToday
-              ? "text-green-600"
-              : isFuture
-              ? "text-red-600"
-              : "text-green-600";
-
-          return (
-            <div
-              key={user.uid}
-              className="border p-4 rounded-lg shadow flex justify-between items-start"
-            >
-              <div>
-                <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
-                <p className="text-lg font-semibold">UID: {user.uid}</p>
-                <p className={`text-sm mt-2 font-medium ${getStatusColor(user.status)}`}>
-                  Status: {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
-                  Added:{" "}
-                  {new Date(user.createdAt).toLocaleString("en-IN", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                    timeZone: "Asia/Kolkata",
-                  })}
-                </p>
-              </div>
-              <div className={`px-3 py-1 rounded-full ${getStatusColor(user.status)} bg-opacity-20`}>
-                <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
-                <p
-                  className={`text-xs text-gray-600 mt-4 font-medium ${
-                                      user.status === "pending" && isToday ? "animate-bounce" : ""
-                }`}
-                >
-                  Upload Date:{" "}
-                  <span className={`inline-block font-semibold ${uploadDateColor}`}>
-                    {uploadDateLabel}
-                  </span>
-                </p>
-              </div>
+        {filteredUsers.map((user, index) => (
+          <div
+            key={user.uid}
+            className="border p-4 rounded-lg shadow flex justify-between items-start"
+          >
+            <div>
+              <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
+              <p className="text-lg font-semibold">UID: {user.uid}</p>
+              <p
+                className={`text-sm mt-2 font-medium ${getStatusColor(
+                  user.status
+                )}`}
+              >
+                Status:{" "}
+                {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+              </p>
+              <p className="text-xs text-gray-600 mt-1">
+                Added:{" "}
+                {new Date(user.createdAt).toLocaleString("en-IN", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                  timeZone: "Asia/Kolkata",
+                })}
+              </p>
             </div>
-          );
-        })}
+            <div
+              className={`px-3 py-1 rounded-full ${getStatusColor(
+                user.status
+              )} bg-opacity-20`}
+            >
+              <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
+              <p
+                className={`text-xs text-gray-600 mt-4 font-medium ${
+                  user.status === "pending" && user.queueNumber <= 6
+                    ? "animate-bounce"
+                    : ""
+                }`}
+              >
+                Upload Date:{" "}
+                <span
+                  className={`inline-block font-semibold ${
+                    user.status === "invalid"
+                      ? "text-red-600"
+                      : user.status === "pending"
+                      ? user.queueNumber <= 6
+                        ? "text-green-600"
+                        : "text-red-600"
+                      : "text-green-600"
+                  }`}
+                >
+                  {user.status === "invalid"
+                    ? "None"
+                    : user.status === "pending"
+                    ? user.queueNumber <= 6
+                      ? "Today"
+                      : new Date(
+                          new Date().setDate(
+                            new Date().getDate() +
+                              Math.floor((user.queueNumber - 1) / 6)
+                          )
+                        ).toLocaleDateString("en-IN", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })
+                    : new Date(
+                        new Date(user.createdAt).setDate(
+                          new Date(user.createdAt).getDate() +
+                            Math.floor((user.queueNumber - 1) / 6)
+                        )
+                      ).toLocaleDateString("en-IN", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                </span>
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
