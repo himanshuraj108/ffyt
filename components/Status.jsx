@@ -85,10 +85,25 @@ const Status = () => {
     </div>
   );
 
-  const todayUploads = filteredUsers
+  // ✅ Rolling Upload Logic
+  const pendingQueue = filteredUsers
     .filter((user) => user.status === "pending")
+    .sort((a, b) => a.queueNumber - b.queueNumber);
+
+  const completedToday = filteredUsers
+    .filter((user) => user.status === "completed")
     .sort((a, b) => a.queueNumber - b.queueNumber)
     .slice(0, 6);
+
+  const showTomorrowBatch = completedToday.length >= 6;
+
+  const currentBatch = showTomorrowBatch
+    ? pendingQueue.slice(6, 12)
+    : pendingQueue.slice(0, 6);
+
+  const uploadDateLabel = showTomorrowBatch ? "Tomorrow" : "Today";
+  const batchColor = showTomorrowBatch ? "text-red-700" : "text-green-700";
+  const cardBg = showTomorrowBatch ? "bg-red-50" : "bg-green-50";
 
   return (
     <div className="min-w-[450px] w-[450px] max-w-full mx-auto min-h-screen px-4 py-4">
@@ -169,17 +184,17 @@ const Status = () => {
         </div>
       </div>
 
-      {/* ✅ Today Uploads Section */}
-      {todayUploads.length > 0 && (
+      {/* ✅ Dynamic Upload Batch */}
+      {currentBatch.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-lg font-bold mb-2 text-green-700">
-            Today Uploads
+          <h2 className={`text-lg font-bold mb-2 ${batchColor}`}>
+            {uploadDateLabel} Uploads
           </h2>
           <div className="grid grid-cols-2 gap-2">
-            {todayUploads.map((user, index) => (
+            {currentBatch.map((user, index) => (
               <div
                 key={user.uid}
-                className="px-3 py-2 border rounded-md shadow text-sm text-gray-800 bg-green-50"
+                className={`px-3 py-2 border rounded-md shadow text-sm text-gray-800 ${cardBg}`}
               >
                 <p className="text-xs text-gray-500 font-bold">{index + 1}</p>
                 <p className="font-semibold">UID: {user.uid}</p>
@@ -192,7 +207,7 @@ const Status = () => {
         </div>
       )}
 
-      {/* Full User Cards */}
+      {/* ✅ Full User Cards */}
       <div className="grid gap-4 mt-6">
         {filteredUsers.map((user, index) => {
           const isHighlighted = user.uid === highlightUid;
@@ -200,11 +215,11 @@ const Status = () => {
             <div
               key={user.uid}
               ref={isHighlighted ? cardRef : null}
-             className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
-  isHighlighted
-    ? "border-blue-500 bg-blue-100 ring-2 ring-blue-400 scale-[1.02] animate-pulse"
-    : ""
-}`}
+              className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
+                isHighlighted
+                  ? "border-blue-500 bg-blue-100 ring-2 ring-blue-400 scale-[1.02] animate-pulse"
+                  : ""
+              }`}
             >
               <div>
                 <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
@@ -216,7 +231,7 @@ const Status = () => {
                 >
                   Status:{" "}
                   {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                </p>
+                                  </p>
                 <p className="text-xs text-gray-600 mt-1">
                   Added:{" "}
                   {new Date(user.createdAt).toLocaleString("en-IN", {
@@ -243,9 +258,15 @@ const Status = () => {
                 <p className="text-sm font-semibold">
                   Queue #{user.queueNumber}
                 </p>
-                                <p
+                <p
                   className={`text-xs text-gray-600 mt-4 font-medium ${
-                    user.status === "pending" && user.queueNumber <= 6
+                    user.status === "pending" &&
+                    user.queueNumber <= 12 &&
+                    completedToday.length >= 6
+                      ? "animate-bounce"
+                      : user.status === "pending" &&
+                        user.queueNumber <= 6 &&
+                        completedToday.length < 6
                       ? "animate-bounce"
                       : ""
                   }`}
@@ -256,7 +277,13 @@ const Status = () => {
                       user.status === "invalid"
                         ? "text-red-600"
                         : user.status === "pending"
-                        ? user.queueNumber <= 6
+                        ? completedToday.length >= 6
+                          ? user.queueNumber <= 6
+                            ? "text-green-600"
+                            : user.queueNumber <= 12
+                            ? "text-red-600"
+                            : "text-yellow-600"
+                          : user.queueNumber <= 6
                           ? "text-green-600"
                           : "text-red-600"
                         : "text-green-600"
@@ -265,7 +292,22 @@ const Status = () => {
                     {user.status === "invalid"
                       ? "None"
                       : user.status === "pending"
-                      ? user.queueNumber <= 6
+                      ? completedToday.length >= 6
+                        ? user.queueNumber <= 6
+                          ? "Completed"
+                          : user.queueNumber <= 12
+                          ? "Tomorrow"
+                          : new Date(
+                              new Date().setDate(
+                                new Date().getDate() +
+                                  Math.floor((user.queueNumber - 1) / 6)
+                              )
+                            ).toLocaleDateString("en-IN", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })
+                        : user.queueNumber <= 6
                         ? "Today"
                         : new Date(
                             new Date().setDate(
