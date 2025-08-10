@@ -85,7 +85,7 @@ const Status = () => {
   .sort((a, b) => a.queueNumber - b.queueNumber);
 
 const todayUploads = pendingUsers.slice(0, 6);
-const tomorrowUploads = todayUploads.length === 6 ? pendingUsers.slice(6, 12) : [];
+const tomorrowUploads = todayUploads.length === 6 ? pendingUsers.slice(0, 6) : [];
 
   return (
     <div className="min-w-[450px] w-[450px] max-w-full mx-auto min-h-screen px-4 py-4">
