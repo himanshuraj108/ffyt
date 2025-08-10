@@ -88,7 +88,7 @@ const Status = () => {
   const tomorrowUploads = filteredUsers
     .filter((user) => user.status === "pending")
     .sort((a, b) => a.queueNumber - b.queueNumber)
-    .slice(7, 13);
+    .slice(6, 12);
 
   return (
     <div className="min-w-[450px] w-[450px] max-w-full mx-auto min-h-screen px-4 py-4">
