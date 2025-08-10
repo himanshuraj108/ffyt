@@ -85,6 +85,11 @@ const Status = () => {
     .sort((a, b) => a.queueNumber - b.queueNumber)
     .slice(0, 6);
 
+  const tomorrowUploads = filteredUsers
+    .filter((user) => user.status === "pending")
+    .sort((a, b) => a.queueNumber - b.queueNumber)
+    .slice(7, 12);
+
   return (
     <div className="min-w-[450px] w-[450px] max-w-full mx-auto min-h-screen px-4 py-4">
       <Toaster />
@@ -175,6 +180,29 @@ const Status = () => {
               <div
                 key={user.uid}
                 className="px-3 py-2 border rounded-md shadow text-sm text-gray-800 bg-green-50"
+              >
+                <p className="text-xs text-gray-500 font-bold">{index + 1}</p>
+                <p className="font-semibold">UID: {user.uid}</p>
+                <p className="text-xs text-gray-600">
+                  Queue #{user.queueNumber}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+       {/* ✅ tomorrow Uploads Section */}
+      {tomorrowUploads.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-lg font-bold mb-2 text-red-700">
+            Tomorrow Uploads
+          </h2>
+          <div className="grid grid-cols-2 gap-2">
+            {tomorrowUploads.map((user, index) => (
+              <div
+                key={user.uid}
+                className="px-3 py-2 border rounded-md shadow text-sm text-gray-800 bg-red-50"
               >
                 <p className="text-xs text-gray-500 font-bold">{index + 1}</p>
                 <p className="font-semibold">UID: {user.uid}</p>
