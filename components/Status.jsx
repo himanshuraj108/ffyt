@@ -84,28 +84,25 @@ const Status = () => {
     </div>
   );
 
-  // ✅ Batching logic with persistence
-  const pendingUsers = users
-    .filter((user) => user.status === "pending")
+  // ✅ Time-driven batching logic
+  const pendingSorted = users
+    .filter((u) => u.status === "pending")
     .sort((a, b) => a.queueNumber - b.queueNumber);
 
-  const [todayBatch, setTodayBatch] = useState([]);
+  const todayBatch = users
+    .filter((u) => u.queueNumber <= 6)
+    .sort((a, b) => a.queueNumber - b.queueNumber);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("todayBatch");
-    if (stored) {
-      setTodayBatch(JSON.parse(stored));
-    } else if (pendingUsers.length >= 6) {
-      const batch = pendingUsers.slice(0, 6).map((u) => u.uid);
-      localStorage.setItem("todayBatch", JSON.stringify(batch));
-      setTodayBatch(batch);
-    }
-  }, [users]);
+  const isTodayCompleted = todayBatch.every((u) => u.status === "completed");
 
-  const todayUploads = pendingUsers.filter((u) => todayBatch.includes(u.uid));
-  const tomorrowUploads = pendingUsers.filter(
-    (u) => !todayBatch.includes(u.uid)
-  ).slice(0, 6);
+  const tomorrowBatch = users
+    .filter((u) => u.queueNumber > 6 && u.queueNumber <= 12)
+    .sort((a, b) => a.queueNumber - b.queueNumber);
+
+  const displayBatch = isTodayCompleted ? tomorrowBatch : todayBatch;
+  const batchLabel = isTodayCompleted ? "Tomorrow" : "Today";
+  const batchColor = isTodayCompleted ? "text-amber-700" : "text-green-600";
+  const batchAnimate = isTodayCompleted ? "" : "animate-bounce";
 
   return (
     <div className="min-w-[450px] w-[450px] max-w-full mx-auto min-h-screen px-4 py-4">
@@ -170,55 +167,131 @@ const Status = () => {
         <StatText label="Total UID" count={stats.total} textColorClass="text-blue-500 font-bold" />
       </div>
 
-      {/* ✅ Today & Tomorrow User Cards Only */}
-      <div className="grid gap-4 mt-6">
-        {[...todayUploads, ...tomorrowUploads].map((user, index) => {
-          const batchType = todayUploads.includes(user) ? "today" : "tomorrow";
-          const virtualQueue = index + 1;
-          const isHighlighted = user.uid === highlightUid;
-
-          let label = batchType === "today" ? "Today" : "Tomorrow";
-          let color = batchType === "today" ? "text-green-600" : "text-amber-700";
-          let animate = batchType === "today" ? "animate-bounce" : "";
-
-          return (
-            <div
-              key={user.uid}
-              ref={isHighlighted ? cardRef : null}
-              className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
-                isHighlighted
-                  ? "border-blue-500 bg-blue-100 ring-2 ring-blue-400 scale-[1.02] animate-pulse"
-                  : ""
-              }`}
-            >
-              <div>
-                <p className="text-sm text-gray-500 font-bold">{virtualQueue}</p>
-                <p className="text-lg font-semibold">UID: {user.uid}</p>
-                <p className={`text-sm mt-2 font-medium ${getStatusColor(user.status)}`}>
-                  Status: {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
-                  Added:{" "}
-                  {new Date(user.createdAt).toLocaleString("en-IN", {
-                                        year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                    timeZone: "Asia/Kolkata",
-                  })}
-                </p>
+      {/* ✅ Today or Tomorrow Batch Cards */}
+      <div className="mt-6">
+        <h2 className={`text-lg font-bold mb-2 ${batchColor}`}>
+          {batchLabel} Uploads
+        </h2>
+        <div className="grid gap-4">
+          {displayBatch.map((user, index) => {
+            const isHighlighted = user.uid === highlightUid;
+            return (
+              <div
+                key={user.uid}
+                ref={isHighlighted ? cardRef : null}
+                className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
+                  isHighlighted
+                    ? "border-blue-500 bg-blue-100 ring-2 ring-blue-400 scale-[1.02] animate-pulse"
+                    : ""
+                }`}
+              >
+                <div>
+                  <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
+                  <p className="text-lg font-semibold">UID: {user.uid}</p>
+                  <p className={`text-sm mt-2 font-medium ${getStatusColor(user.status)}`}>
+                    Status: {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Added:{" "}
+                    {new Date(user.createdAt).toLocaleString("en-IN", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                      timeZone: "Asia/Kolkata",
+                    })}
+                  </p>
+                </div>
+                <div className={`px-3 py-1 rounded-full ${getStatusColor(user.status)} bg-opacity-20`}>
+                  <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
+                  <p className={`text-xs mt-4 font-medium ${batchAnimate} text-gray-600`}>
+                                        Upload Date: <span className={`inline-block font-semibold ${batchColor}`}>{batchLabel}</span>
+                  </p>
+                </div>
               </div>
-              <div className={`px-3 py-1 rounded-full ${getStatusColor(user.status)} bg-opacity-20`}>
-                <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
-                <p className={`text-xs mt-4 font-medium ${animate} text-gray-600`}>
-                  Upload Date: <span className={`inline-block font-semibold ${color}`}>{label}</span>
-                </p>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 📋 Full UID List */}
+      <div className="mt-10">
+        <h2 className="text-lg font-bold mb-2 text-gray-700">All UID Cards</h2>
+        <div className="grid gap-4">
+          {filteredUsers.map((user, index) => {
+            const isHighlighted = user.uid === highlightUid;
+
+            // Determine label and color based on queueNumber and status
+            let label = "None";
+            let color = "text-gray-500";
+            let animate = "";
+
+            if (user.status === "invalid") {
+              label = "None";
+              color = "text-red-600";
+            } else if (user.queueNumber <= 6 && !isTodayCompleted) {
+              label = "Today";
+              color = "text-green-600";
+              animate = "animate-bounce";
+            } else if (user.queueNumber > 6 && user.queueNumber <= 12 && isTodayCompleted) {
+              label = "Today";
+              color = "text-green-600";
+              animate = "animate-bounce";
+            } else if (user.queueNumber > 6 && user.queueNumber <= 12 && !isTodayCompleted) {
+              label = "Tomorrow";
+              color = "text-amber-700";
+            } else {
+              const date = new Date();
+              date.setDate(date.getDate() + Math.floor((user.queueNumber - 1) / 6));
+              label = date.toLocaleDateString("en-IN", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              });
+              color = "text-red-600";
+            }
+
+            return (
+              <div
+                key={user.uid}
+                ref={isHighlighted ? cardRef : null}
+                className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
+                  isHighlighted
+                    ? "border-blue-500 bg-blue-100 ring-2 ring-blue-400 scale-[1.02] animate-pulse"
+                    : ""
+                }`}
+              >
+                <div>
+                  <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
+                  <p className="text-lg font-semibold">UID: {user.uid}</p>
+                  <p className={`text-sm mt-2 font-medium ${getStatusColor(user.status)}`}>
+                    Status: {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Added:{" "}
+                    {new Date(user.createdAt).toLocaleString("en-IN", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                      timeZone: "Asia/Kolkata",
+                    })}
+                  </p>
+                </div>
+                <div className={`px-3 py-1 rounded-full ${getStatusColor(user.status)} bg-opacity-20`}>
+                  <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
+                  <p className={`text-xs mt-4 font-medium ${animate} text-gray-600`}>
+                    Upload Date: <span className={`inline-block font-semibold ${color}`}>{label}</span>
+                  </p>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
