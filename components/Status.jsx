@@ -169,51 +169,43 @@ const Status = () => {
         </div>
       </div>
 
-      {/* ✅ Today Uploads Section */}
-      {todayUploads.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-lg font-bold mb-2 text-green-700">
-            Today Uploads
-          </h2>
-          <div className="grid grid-cols-2 gap-2">
-            {todayUploads.map((user, index) => (
-              <div
-                key={user.uid}
-                className="px-3 py-2 border rounded-md shadow text-sm text-gray-800 bg-green-50"
-              >
-                <p className="text-xs text-gray-500 font-bold">{index + 1}</p>
-                <p className="font-semibold">UID: {user.uid}</p>
-                <p className="text-xs text-gray-600">
-                  Queue #{user.queueNumber}
-                </p>
-              </div>
-            ))}
+      {todayUploads.length >= 6 ? (
+  tomorrowUploads.length > 0 && (
+    <div className="mt-6">
+      <h2 className="text-lg font-bold mb-2 text-red-700">Tomorrow Uploads</h2>
+      <div className="grid grid-cols-2 gap-2">
+        {tomorrowUploads.map((user, index) => (
+          <div
+            key={user.uid}
+            className="px-3 py-2 border rounded-md shadow text-sm text-gray-800 bg-red-50"
+          >
+            <p className="text-xs text-gray-500 font-bold">{index + 1}</p>
+            <p className="font-semibold">UID: {user.uid}</p>
+            <p className="text-xs text-gray-600">Queue #{user.queueNumber}</p>
           </div>
-        </div>
-      )}
-
-       {/* ✅ tomorrow Uploads Section */}
-      {tomorrowUploads.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-lg font-bold mb-2 text-red-700">
-            Tomorrow Uploads
-          </h2>
-          <div className="grid grid-cols-2 gap-2">
-            {tomorrowUploads.map((user, index) => (
-              <div
-                key={user.uid}
-                className="px-3 py-2 border rounded-md shadow text-sm text-gray-800 bg-red-50"
-              >
-                <p className="text-xs text-gray-500 font-bold">{index + 1}</p>
-                <p className="font-semibold">UID: {user.uid}</p>
-                <p className="text-xs text-gray-600">
-                  Queue #{user.queueNumber}
-                </p>
-              </div>
-            ))}
+        ))}
+      </div>
+    </div>
+  )
+) : (
+  todayUploads.length > 0 && (
+    <div className="mt-6">
+      <h2 className="text-lg font-bold mb-2 text-green-700">Today Uploads</h2>
+      <div className="grid grid-cols-2 gap-2">
+        {todayUploads.map((user, index) => (
+          <div
+            key={user.uid}
+            className="px-3 py-2 border rounded-md shadow text-sm text-gray-800 bg-green-50"
+          >
+            <p className="text-xs text-gray-500 font-bold">{index + 1}</p>
+            <p className="font-semibold">UID: {user.uid}</p>
+            <p className="text-xs text-gray-600">Queue #{user.queueNumber}</p>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
+    </div>
+  )
+)}
 
       {/* Full User Cards */}
       <div className="grid gap-4 mt-6">
