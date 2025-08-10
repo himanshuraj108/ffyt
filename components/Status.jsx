@@ -16,7 +16,7 @@ const Status = () => {
     deleted: 0,
     total: 0,
   });
-
+  const isHighlighted = user.uid === highlightUid;
   useEffect(() => {
     const status = localStorage.getItem("appStatus");
     setIsOnline(status === "Editing");
