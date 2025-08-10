@@ -204,93 +204,97 @@ const tomorrowUploads = todayUploads.length === 6 ? pendingUsers.slice(0, 6) : [
   )
 )}
 
-      {/* Full User Cards */}
-      <div className="grid gap-4 mt-6">
-        {filteredUsers.map((user, index) => (
-          <div
-            key={user.uid}
-            className="border p-4 rounded-lg shadow flex justify-between items-start"
-          >
-            <div>
-              <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
-              <p className="text-lg font-semibold">UID: {user.uid}</p>
-              <p
-                className={`text-sm mt-2 font-medium ${getStatusColor(
-                  user.status
-                )}`}
-              >
-                Status:{" "}
-                {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-              </p>
-              <p className="text-xs text-gray-600 mt-1">
-                Added:{" "}
-                {new Date(user.createdAt).toLocaleString("en-IN", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                  timeZone: "Asia/Kolkata",
-                })}
-              </p>
-            </div>
-            <div
-              className={`px-3 py-1 rounded-full ${getStatusColor(
-                user.status
-              )} bg-opacity-20`}
-            >
-              <p className="text-sm font-semibold">Queue #{user.queueNumber}</p>
-              <p
-                className={`text-xs text-gray-600 mt-4 font-medium ${
-                  user.status === "pending" && user.queueNumber <= 6
-                    ? "animate-bounce"
-                    : ""
-                }`}
-              >
-                Upload Date:{" "}
-                <span
-                  className={`inline-block font-semibold ${
-                    user.status === "invalid"
-                      ? "text-red-600"
-                      : user.status === "pending"
-                      ? user.queueNumber <= 6
-                        ? "text-green-600"
-                        : "text-red-600"
-                      : "text-green-600"
-                  }`}
-                >
-                  {user.status === "invalid"
-                    ? "None"
-                    : user.status === "pending"
-                    ? user.queueNumber <= 6
-                      ? "Today"
-                      : new Date(
-                          new Date().setDate(
-                            new Date().getDate() +
-                              Math.floor((user.queueNumber - 1) / 6)
-                          )
-                        ).toLocaleDateString("en-IN", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })
-                    : new Date(
-                        new Date(user.createdAt).setDate(
-                          new Date(user.createdAt).getDate() +
-                            Math.floor((user.queueNumber - 1) / 6)
-                        )
-                      ).toLocaleDateString("en-IN", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                </span>
-              </p>
-            </div>
-          </div>
-        ))}
+     {/* ✅ Full User Cards with Dynamic Upload Date and Color */}
+<div className="grid gap-4 mt-6">
+  {filteredUsers.map((user, index) => {
+    const isHighlighted = user.uid === highlightUid;
+
+    // Virtual batching
+    const pendingSorted = filteredUsers
+      .filter((u) => u.status === "pending")
+      .sort((a, b) => a.queueNumber - b.queueNumber);
+
+    const completedSorted = filteredUsers
+      .filter((u) => u.status === "completed")
+      .sort((a, b) => a.queueNumber - b.queueNumber);
+
+    const completedToday = completedSorted.slice(0, 6);
+    const showTomorrow = completedToday.length === 6;
+
+    const allSorted = [...completedToday, ...pendingSorted];
+    const virtualIndex = allSorted.findIndex((u) => u.uid === user.uid);
+    const batchIndex = virtualIndex >= 0 ? Math.floor(virtualIndex / 6) : null;
+    const virtualQueue = virtualIndex >= 0 ? (virtualIndex % 6) + 1 : user.queueNumber;
+
+    // Upload label and color
+    let label = "None";
+    let color = "text-gray-500";
+    let animate = "";
+
+    if (user.status === "invalid") {
+      label = "None";
+      color = "text-red-600";
+    } else if (user.status === "completed" && batchIndex === 0 && showTomorrow) {
+      label = "Tomorrow";
+      color = "text-amber-700"; // brown tone
+    } else if (user.status === "pending" && batchIndex === 1 && showTomorrow) {
+      label = "Today";
+      color = "text-green-600";
+      animate = "animate-bounce";
+    } else if (user.status === "pending" && batchIndex === 0 && !showTomorrow) {
+      label = "Today";
+      color = "text-green-600";
+      animate = "animate-bounce";
+    } else if (batchIndex !== null) {
+      const date = new Date();
+      date.setDate(date.getDate() + batchIndex);
+      label = date.toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+      color = "text-red-600";
+    }
+
+    return (
+      <div
+        key={user.uid}
+        ref={isHighlighted ? cardRef : null}
+        className={`border p-4 rounded-lg shadow flex justify-between items-start transition-all duration-300 ${
+          isHighlighted
+            ? "border-blue-500 bg-blue-100 ring-2 ring-blue-400 scale-[1.02] animate-pulse"
+            : ""
+        }`}
+      >
+        <div>
+          <p className="text-sm text-gray-500 font-bold">{index + 1}</p>
+          <p className="text-lg font-semibold">UID: {user.uid}</p>
+          <p className={`text-sm mt-2 font-medium ${getStatusColor(user.status)}`}>
+            Status: {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+          </p>
+          <p className="text-xs text-gray-600 mt-1">
+            Added:{" "}
+            {new Date(user.createdAt).toLocaleString("en-IN", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+              timeZone: "Asia/Kolkata",
+            })}
+          </p>
+        </div>
+        <div className={`px-3 py-1 rounded-full ${getStatusColor(user.status)} bg-opacity-20`}>
+          <p className="text-sm font-semibold">Queue #{virtualQueue}</p>
+          <p className={`text-xs mt-4 font-medium ${animate} text-gray-600`}>
+            Upload Date: <span className={`inline-block font-semibold ${color}`}>{label}</span>
+          </p>
+        </div>
       </div>
+    );
+  })}
+</div>
     </div>
   );
 };
