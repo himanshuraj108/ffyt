@@ -80,15 +80,12 @@ const Status = () => {
     .filter((user) => user.status === "completed")
     .sort((a, b) => a.queueNumber - b.queueNumber);
 
-  const todayUploads = filteredUsers
-    .filter((user) => user.status === "pending")
-    .sort((a, b) => a.queueNumber - b.queueNumber)
-    .slice(0, 6);
+  const pendingUsers = filteredUsers
+  .filter((user) => user.status === "pending")
+  .sort((a, b) => a.queueNumber - b.queueNumber);
 
-  const tomorrowUploads = filteredUsers
-    .filter((user) => user.status === "pending")
-    .sort((a, b) => a.queueNumber - b.queueNumber)
-    .slice(6, 12);
+const todayUploads = pendingUsers.slice(0, 6);
+const tomorrowUploads = todayUploads.length === 6 ? pendingUsers.slice(6, 12) : [];
 
   return (
     <div className="min-w-[450px] w-[450px] max-w-full mx-auto min-h-screen px-4 py-4">
