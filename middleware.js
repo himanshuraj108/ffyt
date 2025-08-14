@@ -4,8 +4,8 @@ export async function middleware(request) {
   const path = request.nextUrl.pathname;
   const token = request.cookies.get("admin_token")?.value || "";
 
-  const ADMIN_USER = "admin"; // Change this
-  const ADMIN_PASS = "secret123"; // Change this
+  const ADMIN_USER = process.env.ADMIN_USERID;
+  const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
   // ✅ If already logged in, allow everything
   if (token) {
