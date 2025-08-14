@@ -1,40 +1,80 @@
 import { NextResponse } from "next/server";
 
-export async function middleware(request) {
+export function middleware(request) {
   const path = request.nextUrl.pathname;
-  const token = request.cookies.get("admin_token")?.value || "";
 
-  const ADMIN_USER = process.env.ADMIN_USERID;
-  const ADMIN_PASS = process.env.ADMIN_PASSWORD;
-
-  // ✅ If already logged in, allow everything
-  if (token) {
+  // ✅ Allow /admin and /admindashboard without blocking
+  if (path === "/admin" || path === "/admindashboard") {
     return NextResponse.next();
   }
 
-  // ✅ Handle /admin login
-  if (path === "/admin") {
-    if (request.method === "POST") {
-      const formData = await request.formData();
-      const username = formData.get("username");
-      const password = formData.get("password");
+  // ❌ Block all other pages with styled 404 + launch message
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Server Error</title>
+      <style>
+        body {
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+          background: white;
+          color: #333;
+          margin: 50px;
+        }
+        h1 {
+          color: #b00;
+          font-size: 24px;
+          border-bottom: 1px solid #ccc;
+          padding-bottom: 5px;
+        }
+        p {
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        .container {
+          max-width: 600px;
+          margin: auto;
+        }
+        .launch-msg {
+          font-size: 14px;
+          color: #555;
+          margin-top: 15px;
+        }
+        a.login-link {
+          display: inline-block;
+          margin-top: 10px;
+          padding: 8px 14px;
+          background: #0078d7;
+          color: white;
+          text-decoration: none;
+          border-radius: 4px;
+        }
+        a.login-link:hover {
+          background: #005fa3;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Server Error</h1>
+        <p><b>404 - File or directory not found.</b></p>
+        <p>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+        <div class="launch-msg">Website will be open in 7 days</div>
+        <a href="/admin" class="login-link">Admin Login</a>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  return new NextResponse(html, {
+    status: 404,
+    headers: { "Content-Type": "text/html" },
+  });
+}
 
-      if (username === ADMIN_USER && password === ADMIN_PASS) {
-        const res = NextResponse.redirect(new URL("/dashboard", request.url));
-        res.cookies.set("admin_token", "valid_admin_session", {
-          httpOnly: true,
-          path: "/",
-        });
-        return res;
-      } else {
-        return new NextResponse(loginPageHTML("Invalid username or password"), {
-          status: 200,
-          headers: { "Content-Type": "text/html" },
-        });
-      }
-    }
-    return new NextResponse(loginPageHTML(), {
-      status: 200,
+export const config = {
+  matcher: ["/:path*"], // Apply to all routes
+};      status: 200,
       headers: { "Content-Type": "text/html" },
     });
   }
