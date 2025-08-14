@@ -188,10 +188,21 @@ function errorPageHTML() {
         margin: auto;
       }
       .launch-msg {
-        font-size: 14px;
-        color: #555;
-        margin-top: 15px;
-      }
+          font-size: 24px;
+          font-weight: bold;
+          color: white;
+          padding: 18px 22px;
+          margin-top: 20px;
+          border-radius: 10px;
+          background: linear-gradient(90deg, #ff512f, #dd2476);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+        }
       a.login-link {
         display: inline-block;
         margin-top: 10px;
