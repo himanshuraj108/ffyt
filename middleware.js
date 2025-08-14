@@ -4,7 +4,7 @@ export function middleware(request) {
   const path = request.nextUrl.pathname;
 
   // ✅ Allow /admin and /admindashboard without blocking
-  if (path === "/admin" || path === "/admindashboard") {
+  if (path === "/admin" || path === "/dashboard") {
     return NextResponse.next();
   }
 
