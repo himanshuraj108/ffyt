@@ -3,12 +3,12 @@ import { NextResponse } from "next/server";
 export function middleware(request) {
   const path = request.nextUrl.pathname;
 
-  // ✅ Allow admin login page and dashboard without blocking
-  if (path === "/admin" || path.startsWith("/dashboard")) {
+  // ✅ Allow all except / and /status
+  if (path !== "/" && path !== "/status") {
     return NextResponse.next();
   }
 
-  // ❌ Block all other pages with custom HTML
+  // ❌ Block / and /status with custom HTML
   const html = `
     <!DOCTYPE html>
     <html>
@@ -86,5 +86,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/:path*"], // Apply to all routes
+  matcher: ["/", "/status"], // Restrict only these routes
 };
