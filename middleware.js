@@ -8,13 +8,10 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
-  // 🎯 Target launch date (YYYY, MM-1, DD) — September is month 8 (0-indexed)
-  const launchDate = new Date(2025, 8, 4); 
-  const today = new Date();
-  const diffTime = launchDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // 🎯 Target launch date (YYYY, MM-1, DD, HH, MM)
+  const launchDate = new Date(2025, 8, 4, 0, 0, 0).getTime(); // 4 Sept 2025 00:00:00
 
-  // ❌ Custom HTML with dynamic countdown
+  // ❌ HTML with JS for live countdown
   const html = `
     <!DOCTYPE html>
     <html>
@@ -78,9 +75,34 @@ export function middleware(request) {
         <h1>Server Error</h1>
         <p><b>404 - File or directory not found.</b></p>
         <p>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
-        <div class="launch-msg">Website will be open in ${diffDays} days</div>
+        <div id="countdown" class="launch-msg">Loading countdown...</div>
         <a href="/admin" class="login-link">Admin Login</a>
       </div>
+
+      <script>
+        const countdownElement = document.getElementById('countdown');
+        const launchDate = ${launchDate};
+
+        function updateCountdown() {
+          const now = new Date().getTime();
+          const distance = launchDate - now;
+
+          if (distance <= 0) {
+            countdownElement.textContent = "Website is now Live!";
+            return;
+          }
+
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          countdownElement.textContent = \`Website will be open in \${days}d \${hours}h \${minutes}m \${seconds}s\`;
+        }
+
+        updateCountdown(); // First call
+        setInterval(updateCountdown, 1000); // Update every second
+      </script>
     </body>
     </html>
   `;
