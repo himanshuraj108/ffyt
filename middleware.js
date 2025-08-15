@@ -2,26 +2,89 @@ import { NextResponse } from "next/server";
 
 export function middleware(request) {
   const path = request.nextUrl.pathname;
-  const isAdminPath = path === "/admin";
-  const isDashboardPath = path.startsWith("/dashboard");
-  const token = request.cookies.get("admin_token")?.value || "";
 
-  // Force authentication for dashboard and api/adminupdate
-  if ((isDashboardPath || path.startsWith("/api/adminupdate")) && !token) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+  // ✅ Allow admin login page and dashboard without blocking
+  if (path === "/admin" || path.startsWith("/dashboard")) {
+    return NextResponse.next();
   }
 
-  // Redirect authenticated users away from login
-  if (isAdminPath && token) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // ❌ Block all other pages with custom HTML
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Server Error</title>
+      <style>
+        body {
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+          background: white;
+          color: #333;
+          margin: 50px;
+        }
+        h1 {
+          color: #b00;
+          font-size: 24px;
+          border-bottom: 1px solid #ccc;
+          padding-bottom: 5px;
+        }
+        p {
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        .container {
+          max-width: 600px;
+          margin: auto;
+          text-align: center;
+        }
+        .launch-msg {
+          font-size: 24px;
+          font-weight: bold;
+          color: white;
+          padding: 18px 22px;
+          margin-top: 20px;
+          border-radius: 10px;
+          background: linear-gradient(90deg, #ff512f, #dd2476);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+        }
+        a.login-link {
+          display: inline-block;
+          margin-top: 15px;
+          padding: 10px 16px;
+          background: #0078d7;
+          color: white;
+          text-decoration: none;
+          border-radius: 4px;
+          font-size: 14px;
+        }
+        a.login-link:hover {
+          background: #005fa3;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Server Error</h1>
+        <p><b>404 - File or directory not found.</b></p>
+        <p>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+        <div class="launch-msg">Website will be open in 7 days</div>
+        <a href="/admin" class="login-link">Admin Login</a>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return new NextResponse(html, {
+    status: 404,
+    headers: { "Content-Type": "text/html" },
+  });
 }
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/admin",
-    "/api/adminupdate/:path*",
-    "/api/admindelete/:path*"
-  ]
+  matcher: ["/:path*"], // Apply to all routes
 };
