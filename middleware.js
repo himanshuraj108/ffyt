@@ -3,12 +3,18 @@ import { NextResponse } from "next/server";
 export function middleware(request) {
   const path = request.nextUrl.pathname;
 
-  // ✅ Allow all except / and /status
+  // ✅ Allow everything except / and /status
   if (path !== "/" && path !== "/status") {
     return NextResponse.next();
   }
 
-  // ❌ Block / and /status with custom HTML
+  // 🎯 Target launch date (YYYY, MM-1, DD) — September is month 8 (0-indexed)
+  const launchDate = new Date(2025, 8, 4); 
+  const today = new Date();
+  const diffTime = launchDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  // ❌ Custom HTML with dynamic countdown
   const html = `
     <!DOCTYPE html>
     <html>
@@ -72,7 +78,7 @@ export function middleware(request) {
         <h1>Server Error</h1>
         <p><b>404 - File or directory not found.</b></p>
         <p>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
-        <div class="launch-msg">Website will be open in 7 days</div>
+        <div class="launch-msg">Website will be open in ${diffDays} days</div>
         <a href="/admin" class="login-link">Admin Login</a>
       </div>
     </body>
