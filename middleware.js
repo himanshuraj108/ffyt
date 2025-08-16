@@ -35,7 +35,7 @@ export function middleware(request) {
           line-height: 1.5;
         }
         .container {
-          max-width: 600px;
+          max-width: 700px;
           margin: auto;
           text-align: center;
         }
@@ -54,6 +54,24 @@ export function middleware(request) {
           0% { transform: scale(1); }
           50% { transform: scale(1.05); }
           100% { transform: scale(1); }
+        }
+        .update-box {
+          margin-top: 25px;
+          padding: 18px 22px;
+          background: linear-gradient(90deg, #0078d7, #005fa3);
+          color: white;
+          border-radius: 10px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          text-align: left;
+          font-size: 15px;
+          line-height: 1.6;
+        }
+        .update-box h2 {
+          margin-top: 0;
+          margin-bottom: 10px;
+          font-size: 20px;
+          font-weight: bold;
+          text-align: center;
         }
         a.login-link {
           display: inline-block;
@@ -75,7 +93,17 @@ export function middleware(request) {
         <h1>Server Error</h1>
         <p><b>404 - File or directory not found.</b></p>
         <p>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+
         <div id="countdown" class="launch-msg">Loading countdown...</div>
+
+        <div class="update-box">
+          <h2>Important Update</h2>
+          <p>No more UIDs will be accepted for now due to certain reasons.</p>
+          <p>Those who have already submitted their UID on this website, don’t worry — your video will be uploaded within the stipulated time.</p>
+          <p>After all registered UIDs are uploaded, the website will reopen for the next set of users.</p>
+          <p style="text-align:center; margin-top:10px; font-weight:bold;">Keep supporting us — a special surprise awaits you at 50K!</p>
+        </div>
+
         <a href="/admin" class="login-link">Admin Login</a>
       </div>
 
