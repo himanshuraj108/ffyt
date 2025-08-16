@@ -151,7 +151,7 @@ export function middleware(request) {
         <div class="update-box">
           <h2>Important Update</h2>
           <p class="point red">No more UIDs will be accepted for now due to certain reasons.</p>
-          <p class="point green">Those who have already submitted their UID on this website, don’t worry — your video will be uploaded within the stipulated time.</p>
+          <p class="point green">Those who have already submitted their UID on this website, dont worry, your video will be uploaded within the stipulated time.</p>
           <p class="point blue">After all registered UIDs are uploaded, the website will reopen for the next set of users.</p>
           <p class="point purple" id="sparkle-target">Keep supporting us, a special surprise awaits you at 50K!</p>
         </div>
