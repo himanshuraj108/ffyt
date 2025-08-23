@@ -148,12 +148,12 @@ const HomePage = () => {
                 </svg>
               </div>
             ) : (
-              <button
+              <p
                 //type="submit"
                 className="w-full max-w-[200px] bg-blue-600 text-xl font-bold text-white py-3 px-8 rounded-full hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 cursor-ban"
               >
                 Not Accepting Yet
-              </button>
+              </p>
             )}
           </div>
         </form>
