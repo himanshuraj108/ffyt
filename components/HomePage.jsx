@@ -18,7 +18,7 @@ const HomePage = () => {
     e.preventDefault();
     setloader(true);
     try {
-      await axios.post("/api/users", formdata);
+      await axios.post("/api/user", formdata);// here will be users
       if(formdata.uid.length > 16){
         setformdata("");
       }
@@ -153,9 +153,9 @@ const HomePage = () => {
             ) : (
               <button 
                 type="submit"
-                className="w-full max-w-[200px] bg-black text-xl font-bold text-white py-3 px-8 rounded-full hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 cursor-ban"
+                className="w-full max-w-[200px] bg-black text-xl font-bold text-white py-3 px-8 rounded-full hover:bg-blue-200 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 cursor-ban"
               >
-                REGISTER
+                CURRENTLY CLOSED
               </button>
             )}
           </div>
